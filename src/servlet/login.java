@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Writer;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,15 +32,9 @@ public class login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String servletPath = getServletContext().getRealPath("/res/test.txt");
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(servletPath)));
-		
-		String string = br.readLine();
-		br.close();
+		Writer out = response.getWriter();
 		
 		
-		System.out.println(string);
 	}
 
 	/**
