@@ -36,13 +36,23 @@ public class login extends HttpServlet {
 		// TODO Auto-generated method stub
 		Writer out = response.getWriter();
 		String mode = request.getParameter("mode");
+		mode = mode==null?"-1":mode;
 		String account = request.getParameter("account");
+		account = account==null?"-1":account;
 		String password = request.getParameter("password");
+		password = password==null?"-1":password;
+		String sId = request.getParameter("sessionId");
+		sId = sId==null?"-1":sId;
 		SessionUtil sUtil = new SessionUtil();
 		String sessionId = "";
 		switch (mode) {
+		case "checkLogin":
+			if(!sUtil.checkLogin(sId)) {
+				response.setStatus(401);
+			}
+			break;
 		case "login":
-			sessionId = sUtil.checkLogin(account, password);
+			sessionId = sUtil.login(account, password);
 			break;
 		case "register":
 			sessionId = sUtil.register(account, password);

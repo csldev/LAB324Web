@@ -13,6 +13,7 @@ public class SessionUtil{
 	private long time = 30*24*60*60*1000;
 	private String sessionTimePath = "e:/lab324data/sessionTime.txt";
 	private String accountPath = "e:/lab324data/account.txt";
+	private String sessionIdPath = "e:/lab324data/sessionId.text";
 	private int[] keyTab = new int[] {67,98,93,78,77,79,103,110,74,120,115,65,67};
 	
 	public String getSessionId(String account){
@@ -56,7 +57,6 @@ public class SessionUtil{
 	
 	
 	public boolean checkSessionID(String account,String sessionId){
-		
 		BufferedReader bReader;
 		long sessionTime = 0;
 		try {
@@ -71,6 +71,21 @@ public class SessionUtil{
 		return caculateSessionId(account, sessionTime).equals(sessionId);
 	}
 	
+	public boolean checkLogin(String sId) {
+		BufferedReader bReader;
+		String sessionId = "";
+		try {
+			bReader = new BufferedReader(new FileReader(new File(sessionIdPath)));
+			sessionId = bReader.readLine();
+			bReader.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return sessionId.equals(sId);
+	}
+	
 	public String register(String account, String password) {
 		String sessionId = "";
 		try {
@@ -79,6 +94,12 @@ public class SessionUtil{
 			bWriter.flush();
 			bWriter.close();
 			sessionId = getSessionId(account);
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(sessionIdPath)));
+			bw.write(sessionId);
+			bw.flush();
+			bw.close();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,7 +107,7 @@ public class SessionUtil{
 		return sessionId;
 	}
 	
-	public String checkLogin(String account, String password) {
+	public String login(String account, String password) {
 		String sessionId = "";
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(accountPath)));
@@ -98,6 +119,11 @@ public class SessionUtil{
 				sessionId = getSessionId(sAccount);
 			}
 			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(sessionIdPath)));
+			bw.write(sessionId);
+			bw.flush();
+			bw.close();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,6 +131,7 @@ public class SessionUtil{
 		
 		return sessionId;
 	}
+	
 	
 	public static void main(String args[]) throws Exception{
 		SessionUtil sUtil = new SessionUtil();
