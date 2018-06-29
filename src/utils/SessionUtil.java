@@ -13,7 +13,7 @@ public class SessionUtil{
 	private long time = 30*24*60*60*1000;
 	private String sessionTimePath = "e:/lab324data/sessionTime.txt";
 	private String accountPath = "e:/lab324data/account.txt";
-	private String sessionIdPath = "e:/lab324data/sessionId.text";
+	private String sessionIdPath = "e:/lab324data/sessionId.txt";
 	private int[] keyTab = new int[] {67,98,93,78,77,79,103,110,74,120,115,65,67};
 	
 	public String getSessionId(String account){
@@ -69,6 +69,20 @@ public class SessionUtil{
 		}
 		
 		return caculateSessionId(account, sessionTime).equals(sessionId);
+	}
+	
+	public boolean checkSessionID(String sessionId) {
+		BufferedReader bufferedReader;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(new File(sessionIdPath)));
+			String sId = bufferedReader.readLine();
+			bufferedReader.close();
+			return sId.equals(sessionId);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	public boolean checkLogin(String sId) {
