@@ -3,9 +3,16 @@ package servlet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 
 import javax.servlet.ServletException;
@@ -37,31 +44,33 @@ public class postRecord extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		
+		doPost(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		//String sessionId = request.getHeader("Cookie");
-		Cookie[] cookies = request.getCookies();
-		String sessionId = "";
-		SessionUtil sessionUtil = new SessionUtil();
-		for (Cookie cookie : cookies) {
-			if(cookie.getName().equals("sessionId")) {
-				sessionId = cookie.getValue();
-			}
-		}
+
+
+		request.setCharacterEncoding("utf-8");
 		
-		
-		
-		if("".equals(sessionId) || !sessionUtil.checkSessionID(sessionId)) {
-			response.setStatus(401);
-			return;
-		}
-		
+//		Cookie[] cookies = request.getCookies();
+//		String sessionId = "";
+//		SessionUtil sessionUtil = new SessionUtil();
+//		for (Cookie cookie : cookies) {
+//			if(cookie.getName().equals("sessionId")) {
+//				sessionId = cookie.getValue();
+//			}
+//		}
+//		
+//		
+//		
+//		if("".equals(sessionId) || !sessionUtil.checkSessionID(sessionId)) {
+//			response.setStatus(401);
+//			return;
+//		}
+	
 		String date = request.getParameter("date");
 		String item = request.getParameter("item");
 		String change = request.getParameter("change");
@@ -69,39 +78,43 @@ public class postRecord extends HttpServlet {
 			response.setStatus(417);
 			return;
 		}
-		
-		
+
 		//获取余额
 		
 		double remain;
 		File remainFile = new File("e:/lab324data/records/remain.txt");
 		try {
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(remainFile));
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(remainFile), "utf-8"));
 			remain = Double.parseDouble(bufferedReader.readLine());
 			bufferedReader.close();
 		} catch (Exception e) {
 			// TODO: handle exception
+			e.printStackTrace();
 			response.setStatus(500);
 			return;
 		}
 		
 		
-		Calendar calendar = Calendar.getInstance();
-		int month = calendar.get(Calendar.MONTH)+1;
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String recordName = "record"+calendar.get(Calendar.YEAR)+""+(month>9?month+"":"0"+month)+(day>0?day+"":"0"+day)+".txt";
+
+		String recordName = "record"+(date.replaceAll("-", "").substring(0,6))+".txt";
 		String recordPath = "e:/lab324data/records/"+recordName;
 		File recordFile = new File(recordPath);
 		BufferedWriter bWriter;
 		boolean first = !recordFile.exists();
 		try {
-			bWriter = new BufferedWriter(new FileWriter(recordFile,true));
+			//bWriter = new BufferedWriter(new FileWriter(recordFile,true));
+			bWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(recordFile,true),"utf-8"));
 			if (first) {
 				bWriter.append("日期..............项目........金额......余额");
 			}		
 			bWriter.newLine();
 			remain -= Double.parseDouble(change);
-			bWriter.append(date+"........"+item+"........"+change+"........"+remain);
+			DecimalFormat dFormat = new DecimalFormat("#.00");
+			String change1 = dFormat.format(Double.parseDouble(change));
+			String remain1 = dFormat.format(remain);
+			
+			
+			bWriter.append(date+"........"+item+"........"+change1+"........"+remain1);
 			bWriter.flush();
 			bWriter.close();
 		} catch (Exception e) {
@@ -113,10 +126,11 @@ public class postRecord extends HttpServlet {
 		
 		//设置余额
 		try {
-			BufferedWriter bWriter2 = new BufferedWriter(new FileWriter(remainFile));
+			//BufferedWriter bWriter2 = new BufferedWriter(new FileWriter(remainFile));
+			BufferedWriter bWriter2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(remainFile),"utf-8"));
 			bWriter2.write(remain+"");
 			bWriter2.flush();
-			bWriter.close();
+			bWriter2.close();
 			
 		} catch (Exception e) {
 			// TODO: handle exception

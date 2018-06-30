@@ -146,13 +146,4 @@ public class SessionUtil{
 		return sessionId;
 	}
 	
-	
-	public static void main(String args[]) throws Exception{
-		SessionUtil sUtil = new SessionUtil();
-		//String sessionId = sUtil.getSessionId("asdfghj");
-		//System.out.println(sessionId);
-		Thread.sleep(3000);
-		System.out.println(sUtil.checkSessionID("csl","CjaTTQ43631"));
-	}
-
 }
