@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import utils.SessionUtil;
+import utils.Settings;
 
 /**
  * Servlet implementation class login
@@ -21,7 +22,7 @@ import utils.SessionUtil;
 @WebServlet("/login")
 public class login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+    
     /**
      * Default constructor. 
      */
@@ -34,6 +35,7 @@ public class login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+
 		Writer out = response.getWriter();
 		String mode = request.getParameter("mode");
 		mode = mode==null?"-1":mode;

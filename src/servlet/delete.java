@@ -16,13 +16,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import utils.Settings;
+
 /**
  * Servlet implementation class delete
  */
 @WebServlet("/delete")
 public class delete extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    private static final String RECORDS_PATH = Settings.recordsPath;
+    
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -36,19 +39,34 @@ public class delete extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String date = request.getParameter("date");
-		if(date==null) {
+		
+		int dateInt = 0 ;
+		
+		File direct = new File(RECORDS_PATH);
+		File[] files = direct.listFiles();
+		for(int i=0;i<files.length;i++) {
+			if(files[i].isFile()) {
+				String name = files[i].getName();
+				
+				if(name.startsWith("record")) {
+					String dateString = name.replaceAll("[^0-9]", "");				 
+					dateInt = Integer.parseInt(dateString) > dateInt ? Integer.parseInt(dateString) : dateInt; 
+					
+				}							
+			}
+		}
+		
+		String date = dateInt+"";
+		
+		if(date.length()<4) {
 			response.setStatus(417);
 			return;
 		}
 		
-		String filePath= "e:/lab324data/records/record"+date+".txt";
-		String tempFilePath = "e:/lab324data/records/temp.txt";
+		String filePath= RECORDS_PATH+"/record"+date+".txt";
+		String tempFilePath = RECORDS_PATH+"/temp.txt";
 		File file = new File(filePath);
-		if(!file.exists()) {
-			response.setStatus(417);
-			return;
-		}
+
 		File tempFile = new File(tempFilePath);
 		double remain = -1;
 		
@@ -78,7 +96,7 @@ public class delete extends HttpServlet {
 			bufferedWriter.close();
 			
 			
-			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("e:/lab324data/records/remain.txt")),"utf-8"));
+			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(RECORDS_PATH+"/remain.txt")),"utf-8"));
 			bWriter.write(remain+"");
 			bWriter.flush();
 			bWriter.close();

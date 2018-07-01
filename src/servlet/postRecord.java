@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import utils.SessionUtil;
+import utils.Settings;
 
 /**
  * Servlet implementation class postRecord
@@ -30,7 +31,9 @@ import utils.SessionUtil;
 @WebServlet("/postRecord")
 public class postRecord extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    private static final String RECORDS_PATH = Settings.recordsPath;
+    
+    
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -55,21 +58,21 @@ public class postRecord extends HttpServlet {
 
 		request.setCharacterEncoding("utf-8");
 		
-//		Cookie[] cookies = request.getCookies();
-//		String sessionId = "";
-//		SessionUtil sessionUtil = new SessionUtil();
-//		for (Cookie cookie : cookies) {
-//			if(cookie.getName().equals("sessionId")) {
-//				sessionId = cookie.getValue();
-//			}
-//		}
-//		
-//		
-//		
-//		if("".equals(sessionId) || !sessionUtil.checkSessionID(sessionId)) {
-//			response.setStatus(401);
-//			return;
-//		}
+		Cookie[] cookies = request.getCookies();
+		String sessionId = "";
+		SessionUtil sessionUtil = new SessionUtil();
+		for (Cookie cookie : cookies) {
+			if(cookie.getName().equals("sessionId")) {
+				sessionId = cookie.getValue();
+			}
+		}
+		
+		
+		
+		if("".equals(sessionId) || !sessionUtil.checkSessionID(sessionId)) {
+			response.setStatus(401);
+			return;
+		}
 	
 		String date = request.getParameter("date");
 		String item = request.getParameter("item");
@@ -82,7 +85,7 @@ public class postRecord extends HttpServlet {
 		//ªÒ»°”‡∂Ó
 		
 		double remain;
-		File remainFile = new File("e:/lab324data/records/remain.txt");
+		File remainFile = new File(RECORDS_PATH+"/remain.txt");
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(remainFile), "utf-8"));
 			remain = Double.parseDouble(bufferedReader.readLine());
@@ -96,8 +99,8 @@ public class postRecord extends HttpServlet {
 		
 		
 
-		String recordName = "record"+(date.replaceAll("-", "").substring(0,6))+".txt";
-		String recordPath = "e:/lab324data/records/"+recordName;
+		String recordName = "/record"+(date.replaceAll("-", "").substring(0,6))+".txt";
+		String recordPath = RECORDS_PATH+recordName;
 		File recordFile = new File(recordPath);
 		BufferedWriter bWriter;
 		boolean first = !recordFile.exists();

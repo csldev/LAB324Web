@@ -10,10 +10,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class SessionUtil{
+    private static final String SAVE_PATH = Settings.savePath;
 	private long time = 30*24*60*60*1000;
-	private String sessionTimePath = "e:/lab324data/sessionTime.txt";
-	private String accountPath = "e:/lab324data/account.txt";
-	private String sessionIdPath = "e:/lab324data/sessionId.txt";
+	private String sessionTimePath = SAVE_PATH+"/sessionTime.txt";
+	private String accountPath = SAVE_PATH+"/account.txt";
+	private String sessionIdPath = SAVE_PATH+"/sessionId.txt";
 	private int[] keyTab = new int[] {67,98,93,78,77,79,103,110,74,120,115,65,67};
 	
 	public String getSessionId(String account){

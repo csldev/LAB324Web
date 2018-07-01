@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import utils.DataHandler;
+import utils.Settings;
 
 /**
  * Servlet implementation class query
@@ -23,7 +24,9 @@ import utils.DataHandler;
 @WebServlet("/query")
 public class query extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    private static final String RECORDS_PATH = Settings.recordsPath;
+    
+    
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -52,11 +55,18 @@ public class query extends HttpServlet {
 		
 		StringBuilder recordsSB = new StringBuilder("[");
 		try {
-			File fileName = new File("e:/lab324data/records/record"+date+".txt");
+			File fileName = new File(RECORDS_PATH+"/record"+date+".txt");
+			if(!fileName.exists()) {
+				response.setStatus(417);
+				return;
+			}
 			BufferedReader bReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "utf-8"));
 			String string = bReader.readLine();
 			DataHandler dHandler = new DataHandler();
-			while((string = bReader.readLine())!=null) {	
+			while((string = bReader.readLine())!=null) {
+				if("".equals(string)) {
+					continue;
+				}
 				recordsSB.append(dHandler.handle(string));
 			}
 			recordsSB.delete(recordsSB.length()-1,recordsSB.length());
