@@ -8,15 +8,26 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Calendar;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class SessionUtil{
-	private long time = 30*24*60*60*1000;
-	private String sessionTimePath = "e:/lab324data/sessionTime.txt";
-	private String accountPath = "e:/lab324data/account.txt";
+    private static final String SAVE_PATH = new Settings().savePath;
+	private long time = 30*24*60*60*1000L;
+	private String sessionTimePath = SAVE_PATH+"/sessionTime.txt";
+	private String accountPath = SAVE_PATH+"/account.txt";
+	private String sessionIdPath = SAVE_PATH+"/sessionId.txt";
 	private int[] keyTab = new int[] {67,98,93,78,77,79,103,110,74,120,115,65,67};
 	
 	public String getSessionId(String account){
-		long sessionTime = System.currentTimeMillis()+time;
+		long currentTime = Calendar.getInstance().getTimeInMillis();
+		long sessionTime = currentTime+time;
+		System.out.println("current time "+currentTime);
+		System.out.println("duration "+time);
+		System.out.println("session time "+sessionTime);
 		return caculateSessionId(account, sessionTime);
 	}
 	
@@ -56,7 +67,6 @@ public class SessionUtil{
 	
 	
 	public boolean checkSessionID(String account,String sessionId){
-		
 		BufferedReader bReader;
 		long sessionTime = 0;
 		try {
@@ -71,6 +81,44 @@ public class SessionUtil{
 		return caculateSessionId(account, sessionTime).equals(sessionId);
 	}
 	
+	public boolean checkSessionID(String sessionId) {
+		BufferedReader bufferedReader;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(new File(sessionIdPath)));
+			String sId = bufferedReader.readLine();
+			bufferedReader.close();
+			return sId.equals(sessionId);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public int checkSession(String sessionId) {
+		if(!checkSessionID(sessionId) ||!checkSessionTime()) {
+			return  401;
+		}
+		return 200;
+	}
+	
+	public boolean checkSessionTime() {
+		BufferedReader bufferedReader;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(new File(sessionTimePath)));
+			long sTime = Long.parseLong(bufferedReader.readLine().replace("[^0-9]", ""));
+			long currentTime = Calendar.getInstance().getTimeInMillis();
+			bufferedReader.close();
+			System.out.println(currentTime);
+			System.out.println(sTime);
+			return currentTime < sTime;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public String register(String account, String password) {
 		String sessionId = "";
 		try {
@@ -79,6 +127,12 @@ public class SessionUtil{
 			bWriter.flush();
 			bWriter.close();
 			sessionId = getSessionId(account);
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(sessionIdPath)));
+			bw.write(sessionId);
+			bw.flush();
+			bw.close();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,7 +140,8 @@ public class SessionUtil{
 		return sessionId;
 	}
 	
-	public String checkLogin(String account, String password) {
+	public String login(String account, String password) {
+		
 		String sessionId = "";
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(accountPath)));
@@ -98,6 +153,11 @@ public class SessionUtil{
 				sessionId = getSessionId(sAccount);
 			}
 			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(sessionIdPath)));
+			bw.write(sessionId);
+			bw.flush();
+			bw.close();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -106,12 +166,27 @@ public class SessionUtil{
 		return sessionId;
 	}
 	
-	public static void main(String args[]) throws Exception{
-		SessionUtil sUtil = new SessionUtil();
-		//String sessionId = sUtil.getSessionId("asdfghj");
-		//System.out.println(sessionId);
-		Thread.sleep(3000);
-		System.out.println(sUtil.checkSessionID("csl","CjaTTQ43631"));
+	public boolean checkSession(HttpServletRequest request, HttpServletResponse response) {
+		
+		Cookie[] cookies = request.getCookies();
+		String sidcheck = "";
+		for (Cookie cookie : cookies) {
+			if(cookie.getName().equals("sessionId")) {
+				sidcheck = cookie.getValue();
+				break;
+			}
+		}
+		if("".equals(sidcheck)) {
+			response.setStatus(401);
+			return true;
+		}
+	 
+		int checkCode = checkSession(sidcheck);
+		if(checkCode!=200) {
+			response.setStatus(checkCode);
+			return true;
+		}
+		return false;
 	}
-
+	
 }
