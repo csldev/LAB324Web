@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import utils.SessionUtil;
 import utils.Settings;
 
 /**
@@ -24,7 +25,7 @@ import utils.Settings;
 @WebServlet("/delete")
 public class delete extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private static final String RECORDS_PATH = Settings.recordsPath;
+    private static final String RECORDS_PATH = new Settings().recordsPath;
     
     /**
      * @see HttpServlet#HttpServlet()
@@ -39,7 +40,14 @@ public class delete extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		
+		request.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
+		SessionUtil sessionUtil = new SessionUtil();
+		if(sessionUtil.checkSession(request, response)) {
+			return;
+		}
+	
+	
 		int dateInt = 0 ;
 		
 		File direct = new File(RECORDS_PATH);

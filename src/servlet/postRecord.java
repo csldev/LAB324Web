@@ -31,7 +31,7 @@ import utils.Settings;
 @WebServlet("/postRecord")
 public class postRecord extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private static final String RECORDS_PATH = Settings.recordsPath;
+    private static final String RECORDS_PATH = new Settings().recordsPath;
     
     
     /**
@@ -57,22 +57,12 @@ public class postRecord extends HttpServlet {
 
 
 		request.setCharacterEncoding("utf-8");
-		
-		Cookie[] cookies = request.getCookies();
-		String sessionId = "";
+		response.setCharacterEncoding("utf-8");
 		SessionUtil sessionUtil = new SessionUtil();
-		for (Cookie cookie : cookies) {
-			if(cookie.getName().equals("sessionId")) {
-				sessionId = cookie.getValue();
-			}
-		}
-		
-		
-		
-		if("".equals(sessionId) || !sessionUtil.checkSessionID(sessionId)) {
-			response.setStatus(401);
+		if(sessionUtil.checkSession(request, response)) {
 			return;
 		}
+	
 	
 		String date = request.getParameter("date");
 		String item = request.getParameter("item");

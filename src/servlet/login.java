@@ -22,7 +22,6 @@ import utils.Settings;
 @WebServlet("/login")
 public class login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    
     /**
      * Default constructor. 
      */
@@ -35,10 +34,14 @@ public class login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-
+		
+		request.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
+		
 		Writer out = response.getWriter();
 		String mode = request.getParameter("mode");
 		mode = mode==null?"-1":mode;
+		
 		String account = request.getParameter("account");
 		account = account==null?"-1":account;
 		String password = request.getParameter("password");
@@ -47,12 +50,9 @@ public class login extends HttpServlet {
 		sId = sId==null?"-1":sId;
 		SessionUtil sUtil = new SessionUtil();
 		String sessionId = "";
+		
+		
 		switch (mode) {
-		case "checkLogin":
-			if(!sUtil.checkLogin(sId)) {
-				response.setStatus(401);
-			}
-			break;
 		case "login":
 			sessionId = sUtil.login(account, password);
 			break;
@@ -65,6 +65,7 @@ public class login extends HttpServlet {
 		if(!"".equals(sessionId)) {
 			out.append(sessionId);
 		}else {
+			response.setStatus(402);
 			out.append("-1");
 		}	
 	}

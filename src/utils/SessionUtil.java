@@ -8,17 +8,26 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Calendar;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class SessionUtil{
-    private static final String SAVE_PATH = Settings.savePath;
-	private long time = 30*24*60*60*1000;
+    private static final String SAVE_PATH = new Settings().savePath;
+	private long time = 30*24*60*60*1000L;
 	private String sessionTimePath = SAVE_PATH+"/sessionTime.txt";
 	private String accountPath = SAVE_PATH+"/account.txt";
 	private String sessionIdPath = SAVE_PATH+"/sessionId.txt";
 	private int[] keyTab = new int[] {67,98,93,78,77,79,103,110,74,120,115,65,67};
 	
 	public String getSessionId(String account){
-		long sessionTime = System.currentTimeMillis()+time;
+		long currentTime = Calendar.getInstance().getTimeInMillis();
+		long sessionTime = currentTime+time;
+		System.out.println("current time "+currentTime);
+		System.out.println("duration "+time);
+		System.out.println("session time "+sessionTime);
 		return caculateSessionId(account, sessionTime);
 	}
 	
@@ -86,19 +95,28 @@ public class SessionUtil{
 		return false;
 	}
 	
-	public boolean checkLogin(String sId) {
-		BufferedReader bReader;
-		String sessionId = "";
+	public int checkSession(String sessionId) {
+		if(!checkSessionID(sessionId) ||!checkSessionTime()) {
+			return  401;
+		}
+		return 200;
+	}
+	
+	public boolean checkSessionTime() {
+		BufferedReader bufferedReader;
 		try {
-			bReader = new BufferedReader(new FileReader(new File(sessionIdPath)));
-			sessionId = bReader.readLine();
-			bReader.close();
+			bufferedReader = new BufferedReader(new FileReader(new File(sessionTimePath)));
+			long sTime = Long.parseLong(bufferedReader.readLine().replace("[^0-9]", ""));
+			long currentTime = Calendar.getInstance().getTimeInMillis();
+			bufferedReader.close();
+			System.out.println(currentTime);
+			System.out.println(sTime);
+			return currentTime < sTime;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			// TODO: handle exception
 			e.printStackTrace();
 		}
-		
-		return sessionId.equals(sId);
+		return false;
 	}
 	
 	public String register(String account, String password) {
@@ -123,6 +141,7 @@ public class SessionUtil{
 	}
 	
 	public String login(String account, String password) {
+		
 		String sessionId = "";
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(accountPath)));
@@ -145,6 +164,29 @@ public class SessionUtil{
 		}
 		
 		return sessionId;
+	}
+	
+	public boolean checkSession(HttpServletRequest request, HttpServletResponse response) {
+		
+		Cookie[] cookies = request.getCookies();
+		String sidcheck = "";
+		for (Cookie cookie : cookies) {
+			if(cookie.getName().equals("sessionId")) {
+				sidcheck = cookie.getValue();
+				break;
+			}
+		}
+		if("".equals(sidcheck)) {
+			response.setStatus(401);
+			return true;
+		}
+	 
+		int checkCode = checkSession(sidcheck);
+		if(checkCode!=200) {
+			response.setStatus(checkCode);
+			return true;
+		}
+		return false;
 	}
 	
 }

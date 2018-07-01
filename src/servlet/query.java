@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import utils.DataHandler;
+import utils.SessionUtil;
 import utils.Settings;
 
 /**
@@ -24,7 +25,7 @@ import utils.Settings;
 @WebServlet("/query")
 public class query extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private static final String RECORDS_PATH = Settings.recordsPath;
+    private static final String RECORDS_PATH = new Settings().recordsPath;
     
     
     /**
@@ -43,6 +44,11 @@ public class query extends HttpServlet {
 		
 		request.setCharacterEncoding("utf-8");
 		response.setCharacterEncoding("utf-8");
+		SessionUtil sessionUtil = new SessionUtil();
+		if(sessionUtil.checkSession(request, response)) {
+			return;
+		}
+	
 		
 		Writer out = response.getWriter();
 		

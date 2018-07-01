@@ -1,18 +1,31 @@
 package utils;
 
+import java.io.File;
+
 public class Settings {
 
-	public static String savePath = "e:/lab324data";
+	public String savePath = "/lab324data";
+	//public String savePath = "e:/lab324data";
 	
-	public static String accountPath = savePath+"/account.txt";
+	public String accountPath = savePath+"/account.txt";
 	
-	public static String sessinIdPath = savePath+"/sessionId.txt";
+	public String sessinIdPath = savePath+"/sessionId.txt";
 	
-	public static String sessionTime = savePath+"/sessionTime.txt";
+	public String sessionTime = savePath+"/sessionTime.txt";
 	
-	public static String recordsPath = savePath+"/records";
+	public String recordsPath = savePath+"/records";
 	
-	public static String remainPath = recordsPath+"/remain.txt";
+	public String remainPath = recordsPath+"/remain.txt";
 	
+	public String[] dirs = new String[]{savePath,recordsPath};
+	
+	public Settings() {
+		for (String string : dirs) {
+			File file = new File(string);
+			if(!file.exists()) {
+				file.mkdirs();
+			}
+		}
+	}
 	
 }
