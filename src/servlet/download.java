@@ -34,12 +34,6 @@ public class download extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		request.setCharacterEncoding("utf-8");
-		response.setCharacterEncoding("utf-8");
-		SessionUtil sessionUtil = new SessionUtil();
-		if(sessionUtil.checkSession(request, response)) {
-			return;
-		}
 		
 		String date = request.getParameter("date");
 		if(date == null) {
@@ -47,7 +41,7 @@ public class download extends HttpServlet {
 			return;
 		}
 		
-		String fileName = "reocrd"+date+".txt";
+		String fileName = "record"+date+".txt";
 		
 		response.reset();
 		response.setHeader("Content-Disposition", "attachment;filename="+URLEncoder.encode(fileName, "UTF-8"));
